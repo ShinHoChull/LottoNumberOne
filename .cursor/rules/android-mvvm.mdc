@@ -1,0 +1,41 @@
+---
+description: Kotlin UI/ViewModel 코딩 패턴
+globs: app/src/**/*.kt
+alwaysApply: false
+---
+
+# Android MVVM 패턴
+
+## 레이어
+
+- `ui/home`: 메인 화면 (`MainActivity`, `HomeViewModel`, `MainListAdapter`)
+- `ui/number_select`: 번호 선택 BottomSheet (`NumberCheckFragment`, `NumberViewModel`)
+- `ui/dialog`: 섞기 결과 Dialog (`MixNumbersDialog`, `MixNumberAdapter`)
+- `base`: `BaseActivity`, `BaseBottomSheetDialogFragment`
+- `config`, `utils`: 상수·확장함수
+
+## Activity / Fragment
+
+```kotlin
+// Activity: BaseActivity 상속, 3개 훅 구현
+class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::inflate) {
+    override fun setUpInit() { }
+    override fun setUpListener() { }
+    override fun observeViewModel() { }
+}
+```
+
+- ViewModel: `by viewModels()` (Fragment), Dialog은 Activity 공유 시 `activityViewModels()`
+- LiveData observe는 `observeViewModel()`에서만
+- Fragment → Activity 데이터 전달: 콜백 (`onNumberChecked`) 패턴 유지
+
+## ViewModel
+
+- `MutableLiveData` private + public `LiveData` getter
+- init에서 빈 리스트 초기화 (`_numberArray.value = mutableListOf()`)
+- null force unwrap(`!!`) 추가 금지 — 기존 코드 수정 시 null-safe로 개선
+
+## RecyclerView Adapter
+
+- ViewBinding으로 ViewHolder 생성
+- `MainListAdapter`: position 0 = + 버튼, 1~ = 등록 번호 행

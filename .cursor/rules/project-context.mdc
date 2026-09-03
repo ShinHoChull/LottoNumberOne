@@ -1,0 +1,33 @@
+---
+description: LottoNumberOne 프로젝트 맥락, 도메인 규칙, 빌드/실행
+alwaysApply: true
+---
+
+# LottoNumberOne
+
+한국 로또(1~45, 6개 선택) 번호를 등록하고 섞는 Android 앱.
+
+## 도메인 규칙
+
+- 번호 범위: 1~45, 한 세트당 정확히 6개
+- **등록번호 섞기**: 사용자가 등록한 모든 번호를 중복 제거 후 섞어 6세트 생성
+- **등록번호 제외 후 섞기**: 등록 번호를 제외한 1~45에서 6세트 생성
+- 결과는 항상 오름차순 6개로 표시
+
+## 수정 시 주의
+
+- 범위를 벗어난 리팩터링 금지 (Room, Navigation, Hilt 등 미도입 기능 추가 X)
+- `HomeViewModel`의 섞기 로직은 UI와 분리 유지
+- ViewBinding 사용 (DataBinding 아님)
+- 기존 `BaseActivity`, `BaseBottomSheetDialogFragment` 패턴 유지
+
+## 빌드 / 실행
+
+```bash
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+./gradlew assembleDebug
+```
+
+- AGP 8.6 → **Java 11+** 필요 (시스템 Java 8만으로는 빌드 실패)
+- APK: `app/build/outputs/apk/debug/app-debug.apk`
+- 상세 구조: `ARCHITECTURE.md`, 알려진 버그: `KNOWN_ISSUES.md`
