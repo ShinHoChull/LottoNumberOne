@@ -2,6 +2,7 @@ package com.squirrel.lottonumberone.ui.home
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import com.squirrel.lottonumberone.base.BaseActivity
@@ -27,7 +28,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         if (result.resultCode == RESULT_OK) {
             val numbers = result.data?.getIntegerArrayListExtra(CameraScanActivity.EXTRA_NUMBERS)
             if (numbers != null && numbers.size == 6) {
-                viewModel.setNumberArray(numbers.toMutableList())
+                if (!viewModel.setNumberArray(numbers.toMutableList())) {
+                    Toast.makeText(this, "최대 5행까지만 등록할 수 있습니다.", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -58,6 +61,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
         mListAdapter!!.setPlusCallBack(object: PlusButtonCallBackListener {
             override fun clickPlusButton() {
+                val currentSize = viewModel.numberArray.value?.size ?: 0
+                if (currentSize >= 5) {
+                    Toast.makeText(this@MainActivity, "최대 5행까지만 등록할 수 있습니다.", Toast.LENGTH_SHORT).show()
+                    return
+                }
+
                 /**
                  * @see [NumberCheckFragment]에서 번호를 저장하면
                  * [com.squirrel.lottonumberone.ui.home.HomeViewModel.setNumberArray]에 추가시키면
@@ -65,7 +74,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
                  */
                 val bottomView = NumberCheckFragment()
                 bottomView.onNumberChecked = { numbers ->
-                    viewModel.setNumberArray(numbers)
+                    if (!viewModel.setNumberArray(numbers)) {
+                        Toast.makeText(this@MainActivity, "최대 5행까지만 등록할 수 있습니다.", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 bottomView.show(supportFragmentManager, bottomView.tag)
             }
@@ -73,6 +84,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
         mListAdapter.setCameraCallBack(object : CameraButtonCallBackListener {
             override fun clickCameraButton() {
+                val currentSize = viewModel.numberArray.value?.size ?: 0
+                if (currentSize >= 5) {
+                    Toast.makeText(this@MainActivity, "최대 5행까지만 등록할 수 있습니다.", Toast.LENGTH_SHORT).show()
+                    return
+                }
+
                 cameraScanLauncher.launch(Intent(this@MainActivity, CameraScanActivity::class.java))
             }
         })

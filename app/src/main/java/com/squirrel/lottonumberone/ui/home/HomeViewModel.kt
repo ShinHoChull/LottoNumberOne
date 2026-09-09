@@ -22,10 +22,14 @@ class HomeViewModel: ViewModel() {
         _numberArray.value = mutableListOf<MutableList<Int>>()
     }
 
-    fun setNumberArray(num: MutableList<Int>) {
+    fun setNumberArray(num: MutableList<Int>): Boolean {
         val currentArray = _numberArray.value ?: mutableListOf()
+        if (currentArray.size >= 5) {
+            return false
+        }
         currentArray.add(num)
         _numberArray.value = currentArray
+        return true
     }
 
     /** 번호를 섞어주는 함수
