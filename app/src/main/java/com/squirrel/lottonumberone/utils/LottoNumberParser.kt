@@ -2,22 +2,30 @@ package com.squirrel.lottonumberone.utils
 
 object LottoNumberParser {
 
+    // "제10회", "100회차", "제 5 회" 등 회차 번호 표기 제거용 정규식
+    private val roundPattern = Regex("""(제\s*)?\d+\s*(회|회차)""")
     private val numberPattern = Regex("(?<![0-9])([1-9]|[1-3][0-9]|4[0-5])(?![0-9])")
 
     /**
      * OCR 텍스트에서 로또 번호 6개(1~45, 중복 없음)를 추출한다.
      */
     fun parse(text: String): List<Int>? {
-        text.lines()
+        // 1. 회차 표기 사전 제거
+        val sanitizedText = text.replace(roundPattern, "")
+
+        // 2. 줄 단위로 먼저 6개 이상 유효한 번호 행이 존재하는지 탐색
+        sanitizedText.lines()
             .map { line -> extractNumbers(line) }
             .firstOrNull { isValidLottoRow(it) }
             ?.let { return normalizeRow(it) }
 
-        val allNumbers = extractNumbers(text)
+        // 3. 줄 구분 없이 전체 텍스트에서 번호 추출
+        val allNumbers = extractNumbers(sanitizedText)
         if (isValidLottoRow(allNumbers)) {
             return normalizeRow(allNumbers)
         }
 
+        // 4. 고유한 6개 이상의 1~45 범위 숫자가 있는 경우 최종 추출
         return findSixUniqueNumbers(allNumbers)
     }
 
