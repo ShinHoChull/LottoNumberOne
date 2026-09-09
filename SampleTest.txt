@@ -1,1 +1,0 @@
-This is a sample test file for testing branch creation, commit, push, and PR creation.
